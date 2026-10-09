@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#172554">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Perfumes Manager">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Perfumes Manager</title>
+<style>
+:root{--navy:#172554;--blue:#2563eb;--bg:#f3f6fb;--card:#fff;--ink:#182235;--muted:#667085;--line:#e5eaf2;--green:#15803d;--red:#b91c1c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+header{background:linear-gradient(135deg,#172554,#1d4ed8);color:#fff;padding:22px 18px 20px;border-radius:0 0 24px 24px}
+header .top{display:flex;align-items:center;gap:12px} .logo{width:46px;height:46px;border-radius:14px;background:#fff;color:var(--navy);display:grid;place-items:center;font-size:25px}
+h1{font-size:21px;margin:0}header p{margin:5px 0 0;color:#dbeafe;font-size:13px}
+main{padding:14px;max-width:850px;margin:auto}.page{display:none}.page.active{display:block}
+.section-title{font-size:19px;font-weight:800;margin:8px 0 12px}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.card,.panel{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:15px;box-shadow:0 3px 12px #17255408}
+.metric-label{font-size:12px;color:var(--muted)}.metric{font-size:22px;font-weight:800;margin-top:7px;overflow-wrap:anywhere}.sub{font-size:12px;color:var(--muted);margin-top:5px}
+.panel{margin-top:12px}.panel h3{margin:0 0 12px;font-size:16px}
+label{display:block;font-size:12px;font-weight:700;color:#475467;margin:10px 0 5px}
+input,select,textarea{width:100%;font:inherit;font-size:16px;border:1px solid #d0d5dd;border-radius:11px;padding:11px;background:white;color:var(--ink);min-height:44px}
+textarea{min-height:70px}button{border:0;border-radius:12px;background:var(--blue);color:#fff;font-weight:750;font-size:15px;padding:12px 14px;min-height:44px;cursor:pointer}
+button.secondary{background:#e8eefc;color:#1d4ed8}button.danger{background:#fee2e2;color:#991b1b}button.small{font-size:12px;padding:8px 10px;min-height:34px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}.full{grid-column:1/-1}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.list{display:grid;gap:9px;margin-top:12px}.item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.item strong{display:block;font-size:14px}.item small{display:block;color:var(--muted);margin-top:4px;line-height:1.4}.item .right{text-align:right;white-space:nowrap}.pill{display:inline-block;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:800;background:#e0f2fe;color:#075985}.pill.warn{background:#fef3c7;color:#92400e}.pill.good{background:#dcfce7;color:#166534}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:5;background:#ffffffed;backdrop-filter:blur(14px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:7px 4px calc(7px + env(safe-area-inset-bottom))}
+nav button{background:transparent;color:#667085;padding:6px 2px;min-height:51px;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button span{font-size:20px}nav button.active{color:#1d4ed8;background:#eff6ff}
+.notice{font-size:12px;color:var(--muted);line-height:1.45;margin-top:10px}.empty{text-align:center;padding:25px;color:var(--muted);font-size:14px}.money{font-variant-numeric:tabular-nums}
+@media(min-width:650px){.cards{grid-template-columns:repeat(3,minmax(0,1fr))}.form-grid{grid-template-columns:repeat(3,minmax(0,1fr))}main{padding:22px}}
+</style>
+</head>
+<body>
+<header><div class="top"><div class="logo">✦</div><div><h1>Perfumes Manager</h1><p>Inventario · Ventas · Clientes · Ganancias</p></div></div></header>
+<main>
+<section id="dashboard" class="page active">
+<div class="section-title">Resumen del negocio</div>
+<div class="cards">
+<div class="card"><div class="metric-label">Ventas registradas</div><div class="metric money" id="mSales">$0.00</div><div class="sub">Total vendido</div></div>
+<div class="card"><div class="metric-label">Dinero cobrado</div><div class="metric money" id="mPaid">$0.00</div><div class="sub">Pagos recibidos</div></div>
+<div class="card"><div class="metric-label">Ganancia bruta</div><div class="metric money" id="mProfit">$0.00</div><div class="sub">Venta menos costo</div></div>
+<div class="card"><div class="metric-label">Deudas pendientes</div><div class="metric money" id="mDebt">$0.00</div><div class="sub">Por cobrar</div></div>
+<div class="card"><div class="metric-label">Unidades en stock</div><div class="metric" id="mStock">0</div><div class="sub">Perfumes disponibles</div></div>
+<div class="card"><div class="metric-label">Valor del inventario</div><div class="metric money" id="mInv">$0.00</div><div class="sub">A costo unitario</div></div>
+</div>
+<div class="panel"><h3>Stock bajo</h3><div id="lowStock" class="notice">No hay alertas.</div></div>
+<div class="panel"><h3>Últimas ventas</h3><div id="recentSales" class="notice">Todavía no has registrado ventas.</div></div>
+<div class="panel"><h3>Respaldo de tus datos</h3><p class="notice">Los datos se guardan en este navegador de este iPhone. Exporta una copia de seguridad con frecuencia. No borres los datos del navegador sin hacer un respaldo.</p><div class="actions"><button onclick="exportBackup()">Descargar respaldo</button><button class="secondary" onclick="document.getElementById('restoreFile').click()">Restaurar respaldo</button><input id="restoreFile" type="file" accept="application/json" hidden onchange="restoreBackup(event)"></div></div>
+</section>
+<section id="products" class="page">
+<div class="section-title">Inventario de perfumes</div>
+<div class="panel"><h3>Agregar perfume</h3><div class="form-grid">
+<div><label>Nombre del perfume *</label><input id="pName" placeholder="Ej. Sauvage"></div><div><label>Marca</label><input id="pBrand" placeholder="Dior"></div>
+<div><label>SKU / código *</label><input id="pSku" placeholder="PERF001"></div><div><label>Tamaño (ml)</label><input id="pSize" type="number" min="0" placeholder="100"></div>
+<div><label>Costo unitario USD *</label><input id="pCost" type="number" min="0" step=".01" placeholder="35"></div><div><label>Precio de venta USD *</label><input id="pPrice" type="number" min="0" step=".01" placeholder="60"></div>
+<div><label>Stock inicial *</label><input id="pQty" type="number" min="0" step="1" placeholder="5"></div><div><label>Stock mínimo</label><input id="pMin" type="number" min="0" step="1" value="2"></div>
+</div><div class="actions"><button onclick="addProduct()">Guardar perfume</button></div></div>
+<div class="panel"><label>Buscar perfume</label><input id="pSearch" placeholder="Nombre, marca o código..." oninput="renderProducts()"><div id="productList" class="list"></div></div>
+</section>
+<section id="customers" class="page">
+<div class="section-title">Clientes</div>
+<div class="panel"><h3>Agregar cliente</h3><div class="form-grid">
+<div><label>Nombre *</label><input id="cName" placeholder="Nombre del cliente"></div><div><label>Teléfono</label><input id="cPhone" type="tel" placeholder="Número de contacto"></div><div class="full"><label>Notas</label><input id="cNotes" placeholder="Preferencias u observaciones"></div>
+</div><div class="actions"><button onclick="addCustomer()">Guardar cliente</button></div></div>
+<div class="panel"><label>Buscar cliente</label><input id="cSearch" placeholder="Nombre o teléfono..." oninput="renderCustomers()"><div id="customerList" class="list"></div></div>
+</section>
+<section id="sales" class="page">
+<div class="section-title">Registrar venta</div>
+<div class="panel"><div class="form-grid">
+<div class="full"><label>Perfume *</label><select id="sProduct" onchange="showSalePrice()"><option value="">Selecciona un perfume</option></select></div>
+<div><label>Cantidad *</label><input id="sQty" type="number" min="1" step="1" value="1" oninput="showSalePrice()"></div><div><label>Precio unitario USD</label><input id="sPrice" type="number" min="0" step=".01" placeholder="0.00"></div>
+<div><label>Descuento total USD</label><input id="sDiscount" type="number" min="0" step=".01" value="0"></div>
+<div><label>Cliente</label><select id="sCustomer"><option value="">Venta sin cliente</option></select></div>
+<div><label>Fecha</label><input id="sDate" type="date"></div><div><label>Método de pago</label><select id="sMethod"><option>Efectivo</option><option>Zelle</option><option>Transferencia</option></select></div>
+<div><label>Pagado ahora USD</label><input id="sPaid" type="number" min="0" step=".01" placeholder="Igual al total"></div><div class="full"><label>Nota</label><input id="sNote" placeholder="Referencia o detalle"></div>
+</div><p class="notice" id="salePreview">Selecciona un perfume para ver el total.</p><div class="actions"><button onclick="addSale()">Confirmar venta</button></div></div>
+<div class="panel"><h3>Historial de ventas</h3><div id="saleList" class="list"></div></div>
+</section>
+<section id="payments" class="page">
+<div class="section-title">Deudas y abonos</div>
+<div class="panel"><h3>Registrar abono</h3><div class="form-grid">
+<div class="full"><label>Venta pendiente *</label><select id="paySale"><option value="">Selecciona una venta</option></select></div>
+<div><label>Importe del abono USD *</label><input id="payAmount" type="number" min=".01" step=".01" placeholder="20.00"></div>
+<div><label>Fecha</label><input id="payDate" type="date"></div>
+<div><label>Método</label><select id="payMethod"><option>Efectivo</option><option>Zelle</option><option>Transferencia</option></select></div>
+<div><label>Referencia</label><input id="payNote" placeholder="Opcional"></div>
+</div><div class="actions"><button onclick="addPayment()">Guardar abono</button></div></div>
+<div class="panel"><h3>Saldo de ventas</h3><div id="debtList" class="list"></div></div>
+<div class="panel"><h3>Historial de pagos</h3><div id="paymentList" class="list"></div></div>
+</section>
+</main>
+<nav>
+<button class="active" data-page="dashboard" onclick="go('dashboard',this)"><span>▦</span>Resumen</button>
+<button data-page="products" onclick="go('products',this)"><span>♙</span>Perfumes</button>
+<button data-page="customers" onclick="go('customers',this)"><span>♧</span>Clientes</button>
+<button data-page="sales" onclick="go('sales',this)"><span>＋</span>Ventas</button>
+<button data-page="payments" onclick="go('payments',this)"><span>＄</span>Deudas</button>
+</nav>
+<script>
+const KEY='perfumesManager_v1';
+let db=JSON.parse(localStorage.getItem(KEY)||'{"products":[],"customers":[],"sales":[],"payments":[]}');
+const $=id=>document.getElementById(id);
+const usd=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(n)||0);
+const today=()=>new Date().toLocaleDateString('en-CA');
+const uid=prefix=>prefix+'-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,5).toUpperCase();
+function save(){localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
+function go(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b===btn));if(id==='sales')fillSaleSelects();if(id==='payments')fillPaymentSelect()}
+function addProduct(){let name=$('pName').value.trim(),sku=$('pSku').value.trim(),cost=+$('pCost').value,price=+$('pPrice').value,qty=+$('pQty').value,min=+$('pMin').value||0;if(!name||!sku||$('pCost').value===''||$('pPrice').value===''||$('pQty').value===''||cost<0||price<0||qty<0)return alert('Completa nombre, código, costo, precio y stock con valores válidos.');if(db.products.some(p=>p.sku.toLowerCase()===sku.toLowerCase()))return alert('Ese código ya existe. Usa un SKU único.');db.products.push({id:uid('P'),name,brand:$('pBrand').value.trim(),sku,size:+$('pSize').value||0,cost,price,stock:qty,min,created:today()});['pName','pBrand','pSku','pSize','pCost','pPrice','pQty'].forEach(id=>$(id).value='');$('pMin').value='2';save();alert('Perfume guardado.')}
+function addCustomer(){let name=$('cName').value.trim();if(!name)return alert('Escribe el nombre del cliente.');db.customers.push({id:uid('C'),name,phone:$('cPhone').value.trim(),notes:$('cNotes').value.trim(),created:today()});['cName','cPhone','cNotes'].forEach(id=>$(id).value='');save();alert('Cliente guardado.')}
+function fillSaleSelects(){let old=$('sProduct').value,oldC=$('sCustomer').value;$('sProduct').innerHTML='<option value="">Selecciona un perfume</option>'+db.products.map(p=>`<option value="${p.id}">${esc(p.name)} · ${esc(p.sku)} · stock ${p.stock}</option>`).join('');$('sCustomer').innerHTML='<option value="">Venta sin cliente</option>'+db.customers.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');$('sProduct').value=old;$('sCustomer').value=oldC;if(!$('sDate').value)$('sDate').value=today();showSalePrice()}
+function showSalePrice(){let p=db.products.find(x=>x.id===$('sProduct').value);if(p&&!$('sPrice').dataset.edited)$('sPrice').value=p.price;let qty=+$('sQty').value||0,price=+$('sPrice').value||0,disc=+$('sDiscount').value||0;$('salePreview').textContent=p?`Disponible: ${p.stock} · Costo: ${usd(p.cost)} · Total: ${usd(Math.max(0,qty*price-disc))} · Ganancia bruta estimada: ${usd(Math.max(0,qty*price-disc-qty*p.cost))}`:'Selecciona un perfume para ver el total.'}
+$('sPrice').addEventListener('input',()=>{$('sPrice').dataset.edited='1';showSalePrice()});$('sProduct').addEventListener('change',()=>{$('sPrice').dataset.edited='';showSalePrice()});
+function addSale(){let p=db.products.find(x=>x.id===$('sProduct').value),qty=+$('sQty').value,price=+$('sPrice').value,disc=+$('sDiscount').value||0;if(!p)return alert('Selecciona un perfume.');if(!Number.isInteger(qty)||qty<1)return alert('La cantidad debe ser un número entero mayor que cero.');if(qty>p.stock)return alert('No hay suficiente stock. Disponible: '+p.stock);if(!Number.isFinite(price)||price<0||disc<0||disc>qty*price)return alert('Revisa el precio y el descuento.');let total=qty*price-disc,paid=$('sPaid').value===''?total:+$('sPaid').value;if(paid<0||paid>total)return alert('El pago debe estar entre cero y el total.');let sale={id:uid('V'),date:$('sDate').value||today(),customerId:$('sCustomer').value,customerName:(db.customers.find(c=>c.id===$('sCustomer').value)||{}).name||'Cliente no especificado',productId:p.id,sku:p.sku,productName:p.name,qty,price,cost:p.cost,discount:disc,total,paid,method:$('sMethod').value,note:$('sNote').value.trim(),voided:false};p.stock-=qty;db.sales.unshift(sale);if(paid>0)db.payments.unshift({id:uid('PAG'),date:sale.date,saleId:sale.id,amount:paid,method:sale.method,note:'Pago inicial'});$('sQty').value=1;$('sDiscount').value=0;$('sPaid').value='';$('sNote').value='';$('sPrice').dataset.edited='';save();fillSaleSelects();alert('Venta registrada y stock actualizado.')}
+function fillPaymentSelect(){let pending=db.sales.filter(s=>!s.voided&&balance(s)>.001);$('paySale').innerHTML='<option value="">Selecciona una venta</option>'+pending.map(s=>`<option value="${s.id}">${esc(s.id)} · ${esc(s.customerName)} · saldo ${usd(balance(s))}</option>`).join('');if(!$('payDate').value)$('payDate').value=today()}
+function paidFor(s){return db.payments.filter(p=>p.saleId===s.id).reduce((a,p)=>a+p.amount,0)}
+function balance(s){return Math.max(0,s.total-paidFor(s))}
+function addPayment(){let s=db.sales.find(x=>x.id===$('paySale').value),amount=+$('payAmount').value;if(!s)return alert('Selecciona una venta pendiente.');if(!(amount>0))return alert('Escribe un importe válido.');if(amount>balance(s)+.001)return alert('El abono supera el saldo pendiente de '+usd(balance(s)));db.payments.unshift({id:uid('PAG'),date:$('payDate').value||today(),saleId:s.id,amount,method:$('payMethod').value,note:$('payNote').value.trim()});$('payAmount').value='';$('payNote').value='';save();fillPaymentSelect();alert('Abono registrado.')}
+function cancelSale(id){let s=db.sales.find(x=>x.id===id);if(!s||s.voided)return;let reason=prompt('Motivo de anulación (obligatorio):');if(!reason||!reason.trim())return alert('No se anuló: debes escribir el motivo.');if(!confirm('¿Anular esta venta y devolver '+s.qty+' unidades al stock? Conservaremos el registro.'))return;s.voided=true;s.voidReason=reason.trim();let p=db.products.find(p=>p.id===s.productId);if(p)p.stock+=s.qty;save()}
+function renderProducts(){let q=$('pSearch').value.toLowerCase();let arr=db.products.filter(p=>(p.name+' '+p.brand+' '+p.sku).toLowerCase().includes(q));$('productList').innerHTML=arr.map(p=>`<div class="item"><div><strong>${esc(p.name)} ${p.brand?'· '+esc(p.brand):''}</strong><small>SKU: ${esc(p.sku)} · Costo ${usd(p.cost)} · Venta ${usd(p.price)}<br>Stock: <b>${p.stock}</b> · Mínimo ${p.min} ${p.stock<=p.min?'<span class="pill warn">Stock bajo</span>':''}</small><div class="actions"><button class="secondary small" onclick="stockAdjust('${p.id}')">Ajustar stock</button><button class="secondary small" onclick="editProduct('${p.id}')">Editar</button><button class="danger small" onclick="deleteProduct('${p.id}')">Eliminar</button></div></div><div class="right"><strong>${usd(p.stock*p.cost)}</strong><small>valor a costo</small></div></div>`).join('')||'<div class="empty">No hay perfumes todavía. Agrega el primero arriba.</div>'}
+function stockAdjust(id){let p=db.products.find(x=>x.id===id),v=prompt(`Stock actual: ${p.stock}. Escribe el cambio: positivo para entrada, negativo para salida.`);if(v===null)return;let n=Number(v);if(!Number.isInteger(n)||p.stock+n<0)return alert('Cantidad inválida o stock insuficiente.');p.stock+=n;save()}
+function editProduct(id){let p=db.products.find(x=>x.id===id);let name=prompt('Nombre del perfume:',p.name);if(name===null)return;let cost=prompt('Costo unitario USD:',p.cost);if(cost===null)return;let price=prompt('Precio de venta USD:',p.price);if(price===null)return;let min=prompt('Stock mínimo:',p.min);if([cost,price,min].some(x=>x.trim()===''||!Number.isFinite(Number(x))||Number(x)<0))return alert('Valores inválidos.');p.name=name.trim()||p.name;p.cost=+cost;p.price=+price;p.min=+min;save()}
+function deleteProduct(id){if(db.sales.some(s=>s.productId===id&&!s.voided))return alert('No se puede eliminar: este perfume tiene ventas registradas.');if(confirm('¿Eliminar este perfume?')){db.products=db.products.filter(p=>p.id!==id);save()}}
+function renderCustomers(){let q=$('cSearch').value.toLowerCase();let arr=db.customers.filter(c=>(c.name+' '+c.phone).toLowerCase().includes(q));$('customerList').innerHTML=arr.map(c=>{let ss=db.sales.filter(s=>s.customerId===c.id&&!s.voided),total=ss.reduce((a,s)=>a+s.total,0),debt=ss.reduce((a,s)=>a+balance(s),0);return `<div class="item"><div><strong>${esc(c.name)}</strong><small>${esc(c.phone||'Sin teléfono')}<br>${esc(c.notes||'')}<br>Compras: ${ss.length} · Total: ${usd(total)} · Pendiente: <b>${usd(debt)}</b></small></div><div class="right"><button class="secondary small" onclick="editCustomer('${c.id}')">Editar</button><button class="danger small" onclick="deleteCustomer('${c.id}')">Eliminar</button></div></div>`}).join('')||'<div class="empty">Todavía no hay clientes.</div>'}
+function editCustomer(id){let c=db.customers.find(x=>x.id===id),name=prompt('Nombre:',c.name);if(name===null)return;let phone=prompt('Teléfono:',c.phone);if(phone===null)return;c.name=name.trim()||c.name;c.phone=phone.trim();save()}
+function deleteCustomer(id){if(db.sales.some(s=>s.customerId===id))return alert('No se puede eliminar un cliente con ventas vinculadas.');if(confirm('¿Eliminar este cliente?')){db.customers=db.customers.filter(c=>c.id!==id);save()}}
+function renderSales(){ $('saleList').innerHTML=db.sales.map(s=>`<div class="item"><div><strong>${esc(s.productName)} · ${s.qty} ud. ${s.voided?'<span class="pill warn">ANULADA</span>':balance(s)>.001?'<span class="pill warn">Pendiente</span>':'<span class="pill good">Pagada</span>'}</strong><small>${esc(s.date)} · ${esc(s.customerName)}<br>${esc(s.id)} · ${esc(s.method)} · Costo guardado: ${usd(s.cost)} / unidad<br>${s.voided?'Motivo: '+esc(s.voidReason||''): 'Cobrado: '+usd(paidFor(s))+' · Saldo: '+usd(balance(s))}</small></div><div class="right"><strong>${usd(s.total)}</strong><small>Ganancia: ${usd(s.total-s.qty*s.cost)}</small>${!s.voided?`<button class="danger small" onclick="cancelSale('${s.id}')">Anular</button>`:''}</div></div>`).join('')||'<div class="empty">Todavía no hay ventas registradas.</div>'}
+function renderDebts(){let pending=db.sales.filter(s=>!s.voided&&balance(s)>.001);$('debtList').innerHTML=pending.map(s=>`<div class="item"><div><strong>${esc(s.customerName)}</strong><small>${esc(s.id)} · ${esc(s.date)} · Total ${usd(s.total)}<br>Abonado ${usd(paidFor(s))}</small></div><div class="right"><strong>${usd(balance(s))}</strong><small>Saldo</small></div></div>`).join('')||'<div class="empty">¡No tienes saldos pendientes!</div>';$('paymentList').innerHTML=db.payments.map(p=>{let s=db.sales.find(s=>s.id===p.saleId);return `<div class="item"><div><strong>${usd(p.amount)} · ${esc(p.method)}</strong><small>${esc(p.date)} · Venta ${esc(p.saleId)} · ${esc(s?.customerName||'')}<br>${esc(p.note||'')}</small></div></div>`}).join('')||'<div class="empty">Todavía no hay pagos registrados.</div>'}
+function renderDash(){let active=db.sales.filter(s=>!s.voided);$('mSales').textContent=usd(active.reduce((a,s)=>a+s.total,0));$('mPaid').textContent=usd(db.payments.reduce((a,p)=>a+p.amount,0));$('mProfit').textContent=usd(active.reduce((a,s)=>a+s.total-s.qty*s.cost,0));$('mDebt').textContent=usd(active.reduce((a,s)=>a+balance(s),0));$('mStock').textContent=db.products.reduce((a,p)=>a+p.stock,0);$('mInv').textContent=usd(db.products.reduce((a,p)=>a+p.stock*p.cost,0));let low=db.products.filter(p=>p.stock<=p.min);$('lowStock').innerHTML=low.length?low.map(p=>`${esc(p.name)}: quedan ${p.stock} (mínimo ${p.min})`).join('<br>'):'No hay alertas de stock bajo.';$('recentSales').innerHTML=db.sales.slice(0,5).map(s=>`${esc(s.date)} · ${esc(s.productName)} · ${usd(s.total)} ${s.voided?'(anulada)':''}`).join('<br>')||'Todavía no has registrado ventas.'}
+function renderAll(){renderProducts();renderCustomers();renderSales();renderDebts();renderDash();fillSaleSelects();fillPaymentSelect()}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function exportBackup(){let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='respaldo-perfumes-'+today()+'.json';a.click();URL.revokeObjectURL(a.href)}
+function restoreBackup(e){let f=e.target.files[0];if(!f)return;let reader=new FileReader();reader.onload=()=>{try{let d=JSON.parse(reader.result);if(!Array.isArray(d.products)||!Array.isArray(d.sales)||!Array.isArray(d.customers)||!Array.isArray(d.payments))throw Error();if(confirm('Esto reemplazará los datos actuales. ¿Continuar?')){db=d;save();alert('Respaldo restaurado.')}}catch{alert('El archivo no es un respaldo válido de Perfumes Manager.')}e.target.value=''};reader.readAsText(f)}
+$('sDate').value=today();$('payDate').value=today();renderAll();
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body></html>
